@@ -1,16 +1,3 @@
-"""
-Water Jug Problem - DFS Solution
-This module solves the classic water jug problem using Depth-First Search (DFS).
-
-Problem: Given two jugs of capacities 'a' and 'b', find a sequence of operations
-to measure exactly 'target' liters of water.
-
-Operations:
-1. Fill a jug completely
-2. Empty a jug completely
-3. Pour from one jug to another
-"""
-
 from typing import List, Tuple, Set, Optional
 
 
@@ -41,24 +28,30 @@ class WaterJugDFS:
         next_states = []
         
         # 1. Fill jug1
-        next_states.append((self.jug1_capacity, jug2))
+        if jug1 != self.jug1_capacity:
+            next_states.append((self.jug1_capacity, jug2))
         
         # 2. Fill jug2
-        next_states.append((jug1, self.jug2_capacity))
+        if jug2 != self.jug2_capacity:
+            next_states.append((jug1, self.jug2_capacity))
         
         # 3. Empty jug1
-        next_states.append((0, jug2))
+        if jug1 != 0:
+            next_states.append((0, jug2))
         
         # 4. Empty jug2
-        next_states.append((jug1, 0))
+        if jug2 != 0:
+            next_states.append((jug1, 0))
         
         # 5. Pour from jug1 to jug2
-        pour_amount = min(jug1, self.jug2_capacity - jug2)
-        next_states.append((jug1 - pour_amount, jug2 + pour_amount))
+        if jug1 > 0 and jug2 < self.jug2_capacity:
+            pour_amount = min(jug1, self.jug2_capacity - jug2)
+            next_states.append((jug1 - pour_amount, jug2 + pour_amount))
         
         # 6. Pour from jug2 to jug1
-        pour_amount = min(jug2, self.jug1_capacity - jug1)
-        next_states.append((jug1 + pour_amount, jug2 - pour_amount))
+        if jug2 > 0 and jug1 < self.jug1_capacity:
+            pour_amount = min(jug2, self.jug1_capacity - jug1)
+            next_states.append((jug1 + pour_amount, jug2 - pour_amount))
         
         return next_states
     
@@ -75,7 +68,6 @@ class WaterJugDFS:
         Returns:
             True if solution found, False otherwise
         """
-        # Base cases
         if depth > max_depth:
             return False
         
@@ -87,80 +79,44 @@ class WaterJugDFS:
         self.visited.add(state)
         self.path.append(state)
         
-        # Check if goal state reached
         if self.is_goal_state(jug1, jug2):
             return True
         
-        # Explore all next states
         for next_jug1, next_jug2 in self.get_next_states(jug1, jug2):
             if self.dfs(next_jug1, next_jug2, depth + 1, max_depth):
                 return True
         
-        # Backtrack
         self.path.pop()
         return False
     
     def solve(self) -> Optional[List[Tuple[int, int]]]:
-        """
-        Solve the water jug problem.
-        
-        Returns:
-            List of states leading to solution, or None if no solution exists
-        """
+        """Solve the water jug problem."""
         self.visited.clear()
         self.path.clear()
         
         if self.dfs():
             return self.path
         return None
-    
-    def print_solution(self) -> None:
-        """Print the solution in a readable format."""
-        solution = self.solve()
-        
-        if solution is None:
-            print(f"No solution found to measure {self.target} liters")
-            return
-        
-        print(f"Solution found to measure {self.target} liters:")
-        print(f"Jug1 Capacity: {self.jug1_capacity}, Jug2 Capacity: {self.jug2_capacity}")
-        print("\nSteps:")
-        print("-" * 40)
-        
-        for step, (jug1, jug2) in enumerate(solution):
-            print(f"Step {step}: Jug1 = {jug1}L, Jug2 = {jug2}L")
-            if jug1 == self.target or jug2 == self.target:
-                print(f"✓ Goal reached! Target {self.target}L measured.")
-        
-        print("-" * 40)
-        print(f"Total steps: {len(solution) - 1}")
 
 
-def main():
-    """Main function demonstrating the Water Jug Problem solver."""
-    
-    # Example 1: Classic problem - 3L and 5L jugs, measure 4L
-    print("Example 1: Measure 4L using 3L and 5L jugs")
-    print("=" * 50)
-    solver1 = WaterJugDFS(jug1_capacity=3, jug2_capacity=5, target=4)
-    solver1.print_solution()
-    
-    print("\n\n")
-    
-    # Example 2: 4L and 3L jugs, measure 2L
-    print("Example 2: Measure 2L using 4L and 3L jugs")
-    print("=" * 50)
-    solver2 = WaterJugDFS(jug1_capacity=4, jug2_capacity=3, target=2)
-    solver2.print_solution()
-    
-    print("\n\n")
-    
-    # Example 3: 5L and 2L jugs, measure 1L
-    print("Example 3: Measure 1L using 5L and 2L jugs")
-    print("=" * 50)
-    solver3 = WaterJugDFS(jug1_capacity=5, jug2_capacity=2, target=1)
-    solver3.print_solution()
+# Example 1: 4L and 3L jugs, measure 2L
+solver1 = WaterJugDFS(jug1_capacity=4, jug2_capacity=3, target=2)
+solution1 = solver1.solve()
+print("Example 1: 4L and 3L jugs, measure 2L")
+print(solution1)
 
+print()
 
-if __name__ == "__main__":
-    main()
+# Example 2: 3L and 5L jugs, measure 4L
+solver2 = WaterJugDFS(jug1_capacity=3, jug2_capacity=5, target=4)
+solution2 = solver2.solve()
+print("Example 2: 3L and 5L jugs, measure 4L")
+print(solution2)
+
+print()
+
+# Example 3: 5L and 2L jugs, measure 1L
+solver3 = WaterJugDFS(jug1_capacity=5, jug2_capacity=2, target=1)
+solution3 = solver3.solve()
+print("Example 3: 5L and 2L jugs, measure 1L")
+print(solution3)
